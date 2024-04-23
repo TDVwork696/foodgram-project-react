@@ -76,13 +76,12 @@ class Recipe(models.Model):
         'Время приготовления',
         validators=[MinValueValidator(
             Recipe.MIN_VALUE_VALIDATOR.value,
-            message=f'Минимальное значение {Recipe.MIN_VALUE_VALIDATOR.value}!'
-            ),
-                    MaxValueValidator(
-            Recipe.MAX_VALUE_VALIDATOR.value,
-            message='Максимальное значение' +
-            f'< {Recipe.MAX_VALUE_VALIDATOR.value}!'
-            )]
+            message='Минимальное значение '
+            f'{Recipe.MIN_VALUE_VALIDATOR.value}!'),
+            MaxValueValidator(
+                Recipe.MAX_VALUE_VALIDATOR.value,
+                message='Максимальное значение '
+                f'< {Recipe.MAX_VALUE_VALIDATOR.value}!')]
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -123,11 +122,11 @@ class IngredientInRecipe(models.Model):
         'Количество',
         validators=[MinValueValidator(
             IngredientInRecipe.MIN_VALUE_VALIDATOR.value,
-            message='Минимальное количество' +
+            message='Минимальное количество '
             f'{IngredientInRecipe.MIN_VALUE_VALIDATOR.value}!'),
                     MaxValueValidator(
                         IngredientInRecipe.MAX_VALUE_VALIDATOR.value,
-                        message='Максимальное значение < ' +
+                        message='Максимальное значение < '
                         f'{IngredientInRecipe.MAX_VALUE_VALIDATOR.value}!')]
     )
 

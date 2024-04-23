@@ -155,11 +155,11 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
     def validate_amount(self, value):
         if value < IngredientInRecipeWriteSerializers.MIN_VALUE_VALIDATOR.value:
             raise ValidationError(
-                'Минимальное значение' +
+                'Минимальное значение '
                 f'{IngredientInRecipeWriteSerializers.MIN_VALUE_VALIDATOR.value}!')
         if value > IngredientInRecipeWriteSerializers.MAX_VALUE_VALIDATOR.value:
             raise ValidationError(
-                'Максимальное значение <' +
+                'Максимальное значение < '
                 f' {IngredientInRecipeWriteSerializers.MAX_VALUE_VALIDATOR.value}!')
         return value
 
@@ -207,11 +207,11 @@ class RecipeWriteSerializer(ModelSerializer):
     def validate_cooking_time(self, value):
         if value < RecipeWriteSerializers.MIN_VALUE_VALIDATOR.value:
             raise ValidationError(
-                'Минимальное значение' +
+                'Минимальное значение '
                 f'{RecipeWriteSerializers.MIN_VALUE_VALIDATOR.value}!')
         if value > RecipeWriteSerializers.MAX_VALUE_VALIDATOR.value:
             raise ValidationError(
-                'Максимальное значение <' +
+                'Максимальное значение < '
                 f'{RecipeWriteSerializers.MAX_VALUE_VALIDATOR.value}!')
         return value
 
