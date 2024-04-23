@@ -7,11 +7,15 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-b$kb_j7s5v=l()0@+y*7_-zt743pz(@%2y5kiw$^j96tnbdazy')
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-b$kb_j7s5v=l()0@+y*7_-zt743pz(@%2y5kiw$^j96tnbdazy')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '158.160.76.134 127.0.0.1 localhost foodgramtdv.zapto.org').split(' ')
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    '158.160.76.134 127.0.0.1 localhost foodgramtdv.zapto.org').split(' ')
 
 
 INSTALLED_APPS = [
@@ -113,7 +117,7 @@ DJOSER = {
     'HIDE_USERS': False,
 }
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 

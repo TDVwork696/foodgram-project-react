@@ -4,13 +4,17 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
+
+from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
 from users.models import Subscribe
+
+from .constants import (IngredientInRecipeWriteSerializers,
+                        RecipeWriteSerializers)
 
 User = get_user_model()
 
@@ -148,6 +152,17 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
         model = IngredientInRecipe
         fields = ('id', 'amount')
 
+    def validate_amount(self, value):
+        if value < IngredientInRecipeWriteSerializers.MIN_VALUE_VALIDATOR.value:
+            raise ValidationError(
+                'Минимальное значение' +
+                f'{IngredientInRecipeWriteSerializers.MIN_VALUE_VALIDATOR.value}!')
+        if value > IngredientInRecipeWriteSerializers.MAX_VALUE_VALIDATOR.value:
+            raise ValidationError(
+                'Максимальное значение <' +
+                f' {IngredientInRecipeWriteSerializers.MAX_VALUE_VALIDATOR.value}!')
+        return value
+
 
 class RecipeWriteSerializer(ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(),
@@ -189,6 +204,17 @@ class RecipeWriteSerializer(ModelSerializer):
             ingredients_list.append(ingredient)
         return value
 
+    def validate_cooking_time(self, value):
+        if value < RecipeWriteSerializers.MIN_VALUE_VALIDATOR.value:
+            raise ValidationError(
+                'Минимальное значение' +
+                f'{RecipeWriteSerializers.MIN_VALUE_VALIDATOR.value}!')
+        if value > RecipeWriteSerializers.MAX_VALUE_VALIDATOR.value:
+            raise ValidationError(
+                'Максимальное значение <' +
+                f'{RecipeWriteSerializers.MAX_VALUE_VALIDATOR.value}!')
+        return value
+
     def validate_tags(self, value):
         tags = value
         if not tags:
@@ -200,6 +226,12 @@ class RecipeWriteSerializer(ModelSerializer):
                     {'tags': 'Теги должны быть уникальными!'})
             tags_list.append(tag)
         return value
+
+    def validate_add_to(self, model, user, pk):
+        if model.objects.filter(user=user, recipe__id=pk).exists():
+            raise ValidationError(
+                {'errors': 'Рецепт уже добавлен!'},
+                status=status.HTTP_400_BAD_REQUEST)
 
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):

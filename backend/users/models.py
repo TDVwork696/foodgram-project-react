@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from .constants import User
+
 
 class User(AbstractUser):
     USERNAME_FIELD = 'email'
@@ -12,7 +14,7 @@ class User(AbstractUser):
     ]
     email = models.EmailField(
         'email address',
-        max_length=254,
+        max_length=User.EMAIL_LEN.value,
         unique=True,
     )
 

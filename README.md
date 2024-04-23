@@ -5,27 +5,19 @@
 ## О проекте:
 Проект foodgram-project позволяет пользователям выкладывать рецепты готовых блюд, которые содержат в себе все нужные ингредиенты, время приготовления и описания блюда. Также в проекте можно добавлять нужные ингредиенты в корзину, чтобы совершать покупки более эффективно. В проекте можно подписываться на любимых авторов и выбирать избранные блюда.
 
+## Использованные технологии:
+- Язык програмирования - Python 3.9.10
+- Фреймворк DRF
+- СУБД - postgresql
+- Docker
+
 ## Инструкция для развёртывания проекта:
-
-### Первый этап:
-
-#### Первый вариант:
-
-- Создать на боевом сервере пустой файл  docker-compose.production.yml
-- С помощью редактора nano добавьте в него содержимое из локального docker-compose.production.yml 
-
-#### Второй вариант:
-
-##### С помощью утилиты SCP скопировать файл между компьютерами:
-- scp -i path_to_SSH/SSH_name docker-compose.production.yml \
-    username@server_ip:/home/username/foodgram/docker-compose.production.yml
-
-### Второй этап:
-- sudo docker compose -f docker-compose.production.yml up -d 
-- sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate 
-- sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
-- sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/ 
-- sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_csv_to_db
+- cd infra
+- sudo docker compose -f docker-compose.yml up -d 
+- sudo docker compose -f docker-compose.yml exec backend python manage.py migrate 
+- sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic
+- sudo docker compose -f docker-compose.yml exec backend cp -r /app/collected_static/. /backend_static/static/ 
+- sudo docker compose -f docker-compose.yml exec backend python manage.py import_csv_to_db
 ## В проекте используются переменные окружения, чтобы использовать их ознакомтесь с файлом:
 example.env
 
@@ -59,12 +51,6 @@ https://foodgramtdv.zapto.org/favorites
 
 ### - Список необходимых покупок:
 https://foodgramtdv.zapto.org/cart
-
-## Использованные технологии:
-- Язык програмирования - Python 3.9.10
-- Фреймворк DRF
-- СУБД - postgresql
-- Docker
 
 ## Об авторах:
 https://github.com/TDVwork696
