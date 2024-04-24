@@ -13,7 +13,7 @@ from rest_framework.serializers import ModelSerializer
 from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
 from users.models import Subscribe
 
-from .constants import (IngredientInRecipeWriteSerializers,
+from .constants import (IngredientInRecipeWrite,
                         RecipeWriteSerializers)
 
 User = get_user_model()
@@ -153,14 +153,14 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
         fields = ('id', 'amount')
 
     def validate_amount(self, value):
-        if value < IngredientInRecipeWriteSerializers.MIN_VALUE_VALIDATOR.value:
+        if value < IngredientInRecipeWrite.MIN_VALUE_VALIDATOR.value:
             raise ValidationError(
                 'Минимальное значение '
-                f'{IngredientInRecipeWriteSerializers.MIN_VALUE_VALIDATOR.value}!')
-        if value > IngredientInRecipeWriteSerializers.MAX_VALUE_VALIDATOR.value:
+                f'{IngredientInRecipeWrite.MIN_VALUE_VALIDATOR.value}!')
+        if value > IngredientInRecipeWrite.MAX_VALUE_VALIDATOR.value:
             raise ValidationError(
                 'Максимальное значение < '
-                f' {IngredientInRecipeWriteSerializers.MAX_VALUE_VALIDATOR.value}!')
+                f' {IngredientInRecipeWrite.MAX_VALUE_VALIDATOR.value}!')
         return value
 
 
