@@ -124,10 +124,10 @@ class IngredientInRecipe(models.Model):
             IngredientInRecipe.MIN_VALUE_VALIDATOR.value,
             message='Минимальное количество '
             f'{IngredientInRecipe.MIN_VALUE_VALIDATOR.value}!'),
-                MaxValueValidator(
-                    IngredientInRecipe.MAX_VALUE_VALIDATOR.value,
-                    message='Максимальное значение < '
-                    f'{IngredientInRecipe.MAX_VALUE_VALIDATOR.value}!')]
+            MaxValueValidator(
+                IngredientInRecipe.MAX_VALUE_VALIDATOR.value,
+                message='Максимальное значение < '
+                f'{IngredientInRecipe.MAX_VALUE_VALIDATOR.value}!')]
     )
 
     class Meta:
