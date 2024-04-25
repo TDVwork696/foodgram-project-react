@@ -15,11 +15,11 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from users.models import Subscribe
 
 from .filters import IngredientFilter, RecipeFilter
-from .pagination import CustomPagination
+from .pagination import Pagination
 from .permissions import IsAuthorOrReadOnlyOrAuthenticated
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
                           RecipeShortSerializer, RecipeWriteSerializer,
-                          TagSerializer, CustomUserSerializer,
+                          TagSerializer, UserSerializer,
                           SubscribeSerializer)
 from .utils import formation_list
 
@@ -29,8 +29,8 @@ User = get_user_model()
 
 class UsersViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
-    pagination_class = CustomPagination
+    serializer_class = UserSerializer
+    pagination_class = Pagination
 
     @action(
         detail=True,
@@ -38,31 +38,22 @@ class UsersViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, **kwargs):
-        user = request.user
-        author_id = self.kwargs.get('id')
-        author = get_object_or_404(User, id=author_id)
-
-        if request.method == 'POST':
-            serializer = SubscribeSerializer(author=author,
-                                             user=user,
-                                             data=request.data,
-                                             context={"request": request})
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED)
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        serializer = SubscribeSerializer(author=author,
+                                         user=request.user,
+                                         data=request.data,
+                                         context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, **kwargs):
-        user = request.user
-        author_id = self.kwargs.get('id')
-        author = get_object_or_404(User, id=author_id)
-
-        if request.method == 'DELETE':
-            get_object_or_404(Subscribe,
-                              user=user,
-                              author=author).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        get_object_or_404(Subscribe,
+                          user=request.user,
+                          author=author).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
@@ -94,7 +85,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnlyOrAuthenticated,)
-    pagination_class = CustomPagination
+    pagination_class = Pagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
@@ -112,13 +103,11 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
-        if request.method == 'POST':
-            return self.add_to(Favourite, request.user, pk)
+        return self.add_to(Favourite, request.user, pk)
 
     @favorite.mapping.delete
     def unfavorite(self, request, pk):
-        if request.method == 'DELETE':
-            return self.delete_from(Favourite, request.user, pk)
+        return self.delete_from(Favourite, request.user, pk)
 
     @action(
         detail=True,
@@ -126,13 +115,11 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        if request.method == 'POST':
-            return self.add_to(ShoppingCart, request.user, pk)
+        return self.add_to(ShoppingCart, request.user, pk)
 
     @shopping_cart.mapping.delete
     def unshopping_cart(self, request, pk):
-        if request.method == 'DELETE':
-            return self.delete_from(ShoppingCart, request.user, pk)
+        return self.delete_from(ShoppingCart, request.user, pk)
 
     def add_to(self, model, user, pk):
         recipe = get_object_or_404(Recipe, id=pk)

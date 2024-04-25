@@ -10,16 +10,14 @@ from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
 
+from recipes.constants import Recipes, IngredientInRecipes
 from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
 from users.models import Subscribe
-
-from .constants import (IngredientInRecipeWrite,
-                        RecipeWriteSerializers)
 
 User = get_user_model()
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
+class UserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = tuple(User.REQUIRED_FIELDS) + (
@@ -28,7 +26,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         )
 
 
-class CustomUserSerializer(UserSerializer):
+class UserSerializer(UserSerializer):
     is_subscribed = SerializerMethodField(read_only=True)
 
     class Meta:
@@ -49,12 +47,12 @@ class CustomUserSerializer(UserSerializer):
         return Subscribe.objects.filter(user=user, author=obj).exists()
 
 
-class SubscribeSerializer(CustomUserSerializer):
+class SubscribeSerializer(UserSerializer):
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
 
-    class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + (
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + (
             'recipes_count', 'recipes'
         )
         read_only_fields = ('email', 'username')
@@ -101,7 +99,7 @@ class TagSerializer(ModelSerializer):
 
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    author = CustomUserSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     ingredients = SerializerMethodField()
     image = Base64ImageField()
     is_favorited = SerializerMethodField(read_only=True)
@@ -153,21 +151,21 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
         fields = ('id', 'amount')
 
     def validate_amount(self, value):
-        if value < IngredientInRecipeWrite.MIN_VALUE_VALIDATOR.value:
+        if value < IngredientInRecipes.MIN_VALUE_VALIDATOR_AMOUNT.value:
             raise ValidationError(
                 'Минимальное значение '
-                f'{IngredientInRecipeWrite.MIN_VALUE_VALIDATOR.value}!')
-        if value > IngredientInRecipeWrite.MAX_VALUE_VALIDATOR.value:
+                f'{IngredientInRecipes.MIN_VALUE_VALIDATOR_AMOUNT.value}!')
+        if value > IngredientInRecipes.MAX_VALUE_VALIDATOR_AMOUNT.value:
             raise ValidationError(
                 'Максимальное значение < '
-                f' {IngredientInRecipeWrite.MAX_VALUE_VALIDATOR.value}!')
+                f' {IngredientInRecipes.MAX_VALUE_VALIDATOR_AMOUNT.value}!')
         return value
 
 
 class RecipeWriteSerializer(ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(),
                                   many=True)
-    author = CustomUserSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     ingredients = IngredientInRecipeWriteSerializer(many=True)
     image = Base64ImageField()
 
@@ -205,14 +203,14 @@ class RecipeWriteSerializer(ModelSerializer):
         return value
 
     def validate_cooking_time(self, value):
-        if value < RecipeWriteSerializers.MIN_VALUE_VALIDATOR.value:
+        if value < Recipes.MIN_VALUE_VALIDATOR_COOKING_TIME.value:
             raise ValidationError(
                 'Минимальное значение '
-                f'{RecipeWriteSerializers.MIN_VALUE_VALIDATOR.value}!')
-        if value > RecipeWriteSerializers.MAX_VALUE_VALIDATOR.value:
+                f'{Recipes.MIN_VALUE_VALIDATOR_COOKING_TIME.value}!')
+        if value > Recipes.MAX_VALUE_VALIDATOR_COOKING_TIME.value:
             raise ValidationError(
                 'Максимальное значение < '
-                f'{RecipeWriteSerializers.MAX_VALUE_VALIDATOR.value}!')
+                f'{Recipes.MAX_VALUE_VALIDATOR_COOKING_TIME.value}!')
         return value
 
     def validate_tags(self, value):

@@ -1,4 +1,3 @@
-import contextlib
 import csv
 from os import path
 
@@ -23,20 +22,12 @@ class Import:
         )
 
     def import_data(self):
-        with self.open_file() as file:
+        with open(self.file, mode='r') as file:
             next(file).rstrip().split(',')
             reader = csv.reader(file)
             for row in reader:
                 self.create_list(row)
             self.model.objects.bulk_create(self.list_models_instances)
-
-    @contextlib.contextmanager
-    def open_file(self):
-        self.file = open(self.file, mode='r')
-        try:
-            yield self.file
-        finally:
-            self.file.close()
 
 
 class ImportIngredient(Import):

@@ -4,7 +4,7 @@ from django.core.validators import (MinValueValidator, MaxValueValidator,
 from django.db import models
 from django.db.models import UniqueConstraint
 
-from .constants import Ingredient, Tag, Recipe, IngredientInRecipe
+from .constants import Ingredient, Tag, Recipes, IngredientInRecipes
 
 User = get_user_model()
 
@@ -13,7 +13,7 @@ class Ingredient(models.Model):
     """ Модель Ингридиентов """
 
     name = models.CharField('Название',
-                            max_length=Ingredient.INGREDIENT_NAME_LEN.value)
+                            max_length=Ingredient.NAME_LEN.value)
     measurement_unit = models.CharField(
         'Единица измерения',
         max_length=Ingredient.MEASUREMENT_UNIT_LEN.value)
@@ -59,7 +59,7 @@ class Recipe(models.Model):
     """ Модель Рецепта """
 
     name = models.CharField(
-        'Название', max_length=Recipe.RECIPE_NAME_LEN.value)
+        'Название', max_length=Recipes.NAME_LEN.value)
     author = models.ForeignKey(
         User,
         related_name='recipes',
@@ -75,13 +75,13 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления',
         validators=[MinValueValidator(
-            Recipe.MIN_VALUE_VALIDATOR.value,
+            Recipes.MIN_VALUE_VALIDATOR_COOKING_TIME.value,
             message='Минимальное значение '
-            f'{Recipe.MIN_VALUE_VALIDATOR.value}!'),
+            f'{Recipes.MIN_VALUE_VALIDATOR_COOKING_TIME.value}!'),
             MaxValueValidator(
-                Recipe.MAX_VALUE_VALIDATOR.value,
+                Recipes.MAX_VALUE_VALIDATOR_COOKING_TIME.value,
                 message='Максимальное значение '
-                f'< {Recipe.MAX_VALUE_VALIDATOR.value}!')]
+                f'< {Recipes.MAX_VALUE_VALIDATOR_COOKING_TIME.value}!')]
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -121,13 +121,13 @@ class IngredientInRecipe(models.Model):
     amount = models.PositiveSmallIntegerField(
         'Количество',
         validators=[MinValueValidator(
-            IngredientInRecipe.MIN_VALUE_VALIDATOR.value,
+            IngredientInRecipes.MIN_VALUE_VALIDATOR_AMOUNT.value,
             message='Минимальное количество '
-            f'{IngredientInRecipe.MIN_VALUE_VALIDATOR.value}!'),
+            f'{IngredientInRecipes.MIN_VALUE_VALIDATOR_AMOUNT.value}!'),
             MaxValueValidator(
-                IngredientInRecipe.MAX_VALUE_VALIDATOR.value,
+                IngredientInRecipes.MAX_VALUE_VALIDATOR_AMOUNT.value,
                 message='Максимальное значение < '
-                f'{IngredientInRecipe.MAX_VALUE_VALIDATOR.value}!')]
+                f'{IngredientInRecipes.MAX_VALUE_VALIDATOR_AMOUNT.value}!')]
     )
 
     class Meta:

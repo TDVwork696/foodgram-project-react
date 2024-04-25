@@ -1,5 +1,5 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class User(Enum):
+class User(IntEnum):
     EMAIL_LEN: int = 254
