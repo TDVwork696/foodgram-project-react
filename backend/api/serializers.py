@@ -4,14 +4,15 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import status
+from rest_framework import status, validators
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
 
 from recipes.constants import Recipes, IngredientInRecipes
-from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
+from recipes.models import (Ingredient, IngredientInRecipe, Recipe, Tag,
+                            Favourite, ShoppingCart)
 from users.models import Subscribe
 
 User = get_user_model()
@@ -280,3 +281,44 @@ class RecipeShortSerializer(ModelSerializer):
             'image',
             'cooking_time'
         )
+
+
+class AddFavoriteRecipeSerializer(ModelSerializer):
+
+    class Meta:
+        model = Favourite
+        fields = ('user', 'recipe')
+        validators = [
+            validators.UniqueTogetherValidator(
+                queryset=Favourite.objects.all(),
+                fields=['user', 'recipe'],
+                message='Вы уже добавили рецепт в избранное.'
+            )
+        ]
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeShortSerializer(
+            instance.recipe,
+            context={'request': request}
+        ).data
+
+
+class AddShoppingListRecipeSerializer(AddFavoriteRecipeSerializer):
+
+    class Meta(AddFavoriteRecipeSerializer.Meta):
+        model = ShoppingCart
+        validators = [
+            validators.UniqueTogetherValidator(
+                queryset=ShoppingCart.objects.all(),
+                fields=['user', 'recipe'],
+                message='Вы уже добавили рецепт в список покупок.'
+            )
+        ]
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return ShoppingCart(
+            instance.recipe,
+            context={'request': request}
+        ).data

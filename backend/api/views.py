@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favourite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
 from djoser.views import UserViewSet
-from rest_framework import status
+from rest_framework import response, status
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
@@ -18,9 +18,9 @@ from .filters import IngredientFilter, RecipeFilter
 from .pagination import Pagination
 from .permissions import IsAuthorOrReadOnlyOrAuthenticated
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
-                          RecipeShortSerializer, RecipeWriteSerializer,
+                          RecipeWriteSerializer, AddFavoriteRecipeSerializer,
                           TagSerializer, UserSerializer,
-                          SubscribeSerializer)
+                          SubscribeSerializer, AddShoppingListRecipeSerializer)
 from .utils import formation_list
 
 
@@ -103,7 +103,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
-        return self.add_to(Favourite, request.user, pk)
+        return self.add_to(request, pk, AddFavoriteRecipeSerializer)
 
     @favorite.mapping.delete
     def unfavorite(self, request, pk):
@@ -115,17 +115,21 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        return self.add_to(ShoppingCart, request.user, pk)
+        return self.add_to(request, pk, AddShoppingListRecipeSerializer)
 
     @shopping_cart.mapping.delete
     def unshopping_cart(self, request, pk):
         return self.delete_from(ShoppingCart, request.user, pk)
 
-    def add_to(self, model, user, pk):
-        recipe = get_object_or_404(Recipe, id=pk)
-        model.objects.create(user=user, recipe=recipe)
-        serializer = RecipeShortSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def add_to(self, request, pk, add_serializer):
+        user = request.user
+        data = {'user': user.id,
+                'recipe': pk}
+        serializer = add_serializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(serializer.data,
+                                 status=status.HTTP_201_CREATED)
 
     def delete_from(self, model, user, pk):
         obj = model.objects.filter(user=user, recipe__id=pk)
