@@ -2,8 +2,6 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favourite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag)
 from djoser.views import UserViewSet
 from rest_framework import response, status
 from rest_framework.decorators import action
@@ -12,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from recipes.models import (Favourite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingCart, Tag)
 from users.models import Subscribe
 
 from .filters import IngredientFilter, RecipeFilter
@@ -122,8 +122,7 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_from(ShoppingCart, request.user, pk)
 
     def add_to(self, request, pk, add_serializer):
-        user = request.user
-        data = {'user': user.id,
+        data = {'user': request.user.id,
                 'recipe': pk}
         serializer = add_serializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
