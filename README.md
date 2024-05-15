@@ -1,6 +1,6 @@
 # Проект «foodgram-project»
 
-![example workflow](https://github.com/github/docs/actions/.github/workflows/main.yml/badge.svg)
+![example workflow](https://github.com/TDVwork696/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 ## О проекте:
 Проект foodgram-project позволяет пользователям выкладывать рецепты готовых блюд, которые содержат в себе все нужные ингредиенты, время приготовления и описания блюда. Также в проекте можно добавлять нужные ингредиенты в корзину, чтобы совершать покупки более эффективно. В проекте можно подписываться на любимых авторов и выбирать избранные блюда.
