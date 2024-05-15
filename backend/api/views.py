@@ -20,7 +20,8 @@ from .permissions import IsAuthorOrReadOnlyOrAuthenticated
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
                           RecipeWriteSerializer, AddFavoriteRecipeSerializer,
                           TagSerializer, UserSerializer,
-                          SubscribeSerializer, AddShoppingListRecipeSerializer)
+                          SubscribeSerializer, AddShoppingListRecipeSerializer,
+                          SubscribeCreatSerializer)
 from .utils import formation_list
 
 
@@ -39,13 +40,14 @@ class UsersViewSet(UserViewSet):
     )
     def subscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=self.kwargs.get('id'))
-        serializer = SubscribeSerializer(author=author,
-                                         user=request.user,
-                                         data=request.data,
-                                         context={"request": request})
+        serializer = SubscribeCreatSerializer(data={'user': request.user.id, 'author': author.id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        author_serializer = SubscribeSerializer(author,
+                                                data=request.data,
+                                                context={"request": request})
+        author_serializer.is_valid()
+        return Response(author_serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, **kwargs):

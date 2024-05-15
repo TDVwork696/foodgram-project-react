@@ -48,6 +48,27 @@ class UserSerializer(UserSerializer):
         return Subscribe.objects.filter(user=user, author=obj).exists()
 
 
+class SubscribeCreatSerializer(ModelSerializer):
+    """Сериализатор для модели Subscribe."""
+
+    class Meta:
+        model = Subscribe
+        fields = ('user', 'author')
+
+    def validate(self, data):
+        if data['user'] == data['author']:
+            raise ValidationError(
+                detail='Вы не можете подписаться на самого себя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if Subscribe.objects.filter(author=data['author'], user=data['user']).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны на этого пользователя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
+
+
 class SubscribeSerializer(UserSerializer):
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
@@ -57,21 +78,6 @@ class SubscribeSerializer(UserSerializer):
             'recipes_count', 'recipes'
         )
         read_only_fields = ('email', 'username')
-
-    def validate(self, data):
-        author = self.instance
-        user = self.context.get('request').user
-        if Subscribe.objects.filter(author=author, user=user).exists():
-            raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        if user == author:
-            raise ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        return data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
