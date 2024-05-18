@@ -40,7 +40,8 @@ class UsersViewSet(UserViewSet):
     )
     def subscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=self.kwargs.get('id'))
-        serializer = SubscribeCreatSerializer(data={'user': request.user.id, 'author': author.id})
+        serializer = SubscribeCreatSerializer(
+            data={'user': request.user.id, 'author': author.id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         author_serializer = SubscribeSerializer(author,
