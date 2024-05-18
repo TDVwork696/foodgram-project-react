@@ -321,10 +321,3 @@ class AddShoppingListRecipeSerializer(AddFavoriteRecipeSerializer):
                 message='Вы уже добавили рецепт в список покупок.'
             )
         ]
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        return ShoppingCart(
-            instance.recipe,
-            context={'request': request}
-        ).data
